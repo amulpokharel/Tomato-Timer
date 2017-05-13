@@ -20,13 +20,14 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.startBtn) Button startBtn;
 
     //private vars
-    private static long BREAK_LENGTH = 300000L;
+    private static long BREAK_LENGTH = 3000L;
     private static long POMODORO_LENGTH = 15000L;
     private static Handler handler = new Handler();
     long startTime = 0L;
     long currentTime = 0L;
     long endTime = 0L;
-    int pomodoro_cycle = 0;
+    int pomodoro_cycle = 1;
+    boolean break_time = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,15 +45,23 @@ public class MainActivity extends AppCompatActivity {
 
         //set up times
         startTime = SystemClock.uptimeMillis();
-        endTime = startTime + POMODORO_LENGTH;
+        if(break_time)
+            endTime = startTime + BREAK_LENGTH;
+        else
+            endTime = startTime + POMODORO_LENGTH;
         currentTime = startTime;
 
-        //increment the cycle
-        pomodoro_cycle++;
-
         //set text for TextViews
-        status.setText("Pomodoro in Progress");
-        timer.setText("25:00");
+        if(break_time){
+            status.setText("Enjoy your break(#"+ pomodoro_cycle + ")!");
+            timer.setText("00:03");
+        }
+        else {
+            status.setText("Pomodoro #" + pomodoro_cycle + " in Progress");
+            timer.setText("00:15");
+        }
+
+
 
         //start thread
         handler.postDelayed(timerUpdateThread, 0L);
@@ -67,10 +76,30 @@ public class MainActivity extends AppCompatActivity {
 
         //logic?
         if(currentTime <= 10) {
-            status.setText("Completed!");
+            if(pomodoro_cycle <= 4) {
+                if(!break_time){
+                    break_time = true;
+                    start_timer();
+                }else{
+                    if (pomodoro_cycle == 4){
+                        status.setText("Pomodoro completed!");
+                        pomodoro_cycle = 0;
+                        break_time = false;
+                        startBtn.setEnabled(true);
+                    }
+                    else {
+                        break_time = false;
+                        pomodoro_cycle++;
+                        start_timer();
+                    }
+                }
+
+            }
         }
-        else
+        else {
             status.setText("Aborted!");
+            startBtn.setEnabled(true);
+        }
 
     }
 
