@@ -1,5 +1,8 @@
 package amul.projects.tomatotimer;
 
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
@@ -28,12 +31,21 @@ public class MainActivity extends AppCompatActivity {
     long endTime = 0L;
     int pomodoro_cycle = 1;
     boolean break_time = false;
+    int notificationID = 1;
+    android.support.v4.app.NotificationCompat.Builder nBuilder;
+    NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        nBuilder = new android.support.v4.app.NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_clock)
+                .setContentTitle("Pomodoro")
+                .setContentText("00:00");
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         ButterKnife.bind(this);
     }
 
@@ -80,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!break_time){
                     if (pomodoro_cycle == 4){
                         status.setText("Pomodoro completed!");
+                        mNotificationManager.cancel(notificationID);
                         pomodoro_cycle = 1;
                         break_time = false;
                         startBtn.setEnabled(true);
@@ -97,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             status.setText("Aborted!");
+            mNotificationManager.cancel(notificationID);
             pomodoro_cycle = 1;
             break_time = false;
             startBtn.setEnabled(true);
@@ -116,6 +130,12 @@ public class MainActivity extends AppCompatActivity {
 
             //update the timer
             timer.setText(String.format("%02d", minutes) + ":"+ String.format("%02d", seconds));
+            nBuilder.setContentText(String.format("%02d", minutes) + ":"+ String.format("%02d", seconds));
+            if (break_time)
+                nBuilder.setContentTitle("Break #" + pomodoro_cycle);
+            else
+                nBuilder.setContentTitle("Pomodoro #" + pomodoro_cycle);
+            mNotificationManager.notify(notificationID, nBuilder.build());
             Log.d("Time",Long.toString(currentTime));
             Log.d("Time",Long.toString(endTime));
 
