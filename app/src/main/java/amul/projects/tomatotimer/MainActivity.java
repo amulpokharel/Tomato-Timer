@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     //private vars
     private static long BREAK_LENGTH = 3000L;
-    private static long POMODORO_LENGTH = 15000L;
+    private static long POMODORO_LENGTH = 3000L;
     private static Handler handler = new Handler();
     long startTime = 0L;
     long currentTime = 0L;
@@ -78,26 +78,27 @@ public class MainActivity extends AppCompatActivity {
         if(currentTime <= 10) {
             if(pomodoro_cycle <= 4) {
                 if(!break_time){
-                    break_time = true;
-                    start_timer();
-                }else{
                     if (pomodoro_cycle == 4){
                         status.setText("Pomodoro completed!");
-                        pomodoro_cycle = 0;
+                        pomodoro_cycle = 1;
                         break_time = false;
                         startBtn.setEnabled(true);
-                    }
-                    else {
-                        break_time = false;
-                        pomodoro_cycle++;
+                    }else {
+                        break_time = true;
                         start_timer();
                     }
                 }
-
-            }
+                else{
+                    break_time = false;
+                    pomodoro_cycle++;
+                    start_timer();
+                    }
+                }
         }
         else {
             status.setText("Aborted!");
+            pomodoro_cycle = 1;
+            break_time = false;
             startBtn.setEnabled(true);
         }
 
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            //keep runnning
+            //keep running
             handler.postDelayed(this, 0L);
         }
     };
