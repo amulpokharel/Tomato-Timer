@@ -116,7 +116,9 @@ public class TimerFragment extends Fragment {
                 if(!break_time){
                     if (pomodoro_cycle == 4){
                         status.setText("Pomodoro completed!");
-                        mNotificationManager.cancel(notificationID);
+                        nBuilder.setContentText("Finished!");
+                        nBuilder.setOngoing(false);
+                        mNotificationManager.notify(notificationID, nBuilder.build());
                         pomodoro_cycle = 1;
                         break_time = false;
                         startBtn.setEnabled(true);
@@ -155,6 +157,7 @@ public class TimerFragment extends Fragment {
                 nBuilder.setContentTitle("Break #" + pomodoro_cycle);
             else
                 nBuilder.setContentTitle("Pomodoro #" + pomodoro_cycle);
+            nBuilder.setOngoing(true);
             mNotificationManager.notify(notificationID, nBuilder.build());
             Log.d("Time",currentTime.toString());
             Log.d("Time",endTime.toString());
