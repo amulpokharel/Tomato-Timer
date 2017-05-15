@@ -16,6 +16,10 @@ public class Time implements Comparable{
         time_in_ms = SystemClock.uptimeMillis();
     }
 
+    public static String FormatMS(Long milliseconds){
+        return (new Time(milliseconds).toString());
+    }
+
     //time in milliseconds
     public Time(Long time) {
         time_in_ms = time;
@@ -46,6 +50,10 @@ public class Time implements Comparable{
             return true;
         else
             return false;
+    }
+
+    public void setOffset(Long offset){
+        time_in_ms += offset;
     }
 
     public void subtractCurrentTime(){
