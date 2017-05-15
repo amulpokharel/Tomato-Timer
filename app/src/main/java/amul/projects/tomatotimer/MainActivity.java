@@ -26,9 +26,9 @@ public class MainActivity extends AppCompatActivity {
     private static long BREAK_LENGTH = 3000L;
     private static long POMODORO_LENGTH = 3000L;
     private static Handler handler = new Handler();
-    long startTime = 0L;
-    long currentTime = 0L;
-    long endTime = 0L;
+    Time startTime;
+    Time currentTime;
+    Time endTime;
     int pomodoro_cycle = 1;
     boolean break_time = false;
     int notificationID = 1;
@@ -43,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
                 .setSmallIcon(R.drawable.ic_clock)
                 .setContentTitle("Pomodoro")
                 .setContentText("00:00");
+
+        startTime = new Time(0L);
+        currentTime = new Time(0L);
+        endTime = new Time(0L);
         Intent resultIntent = new Intent(this, MainActivity.class);
         mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -56,12 +60,12 @@ public class MainActivity extends AppCompatActivity {
         startBtn.setEnabled(false);
 
         //set up times
-        startTime = SystemClock.uptimeMillis();
+        startTime.setToCurrent();
         if(break_time)
-            endTime = startTime + BREAK_LENGTH;
+            endTime.setCurrentOffsetTime(BREAK_LENGTH);
         else
-            endTime = startTime + POMODORO_LENGTH;
-        currentTime = startTime;
+            endTime.setCurrentOffsetTime(POMODORO_LENGTH);
+        currentTime.setTime(startTime);
 
         //set text for TextViews
         if(break_time){
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         handler.removeCallbacks(timerUpdateThread);
 
         //logic?
-        if(currentTime <= 10) {
+        if(currentTime.getTime_in_ms() <= 10) {
             if(pomodoro_cycle <= 4) {
                 if(!break_time){
                     if (pomodoro_cycle == 4){
@@ -122,25 +126,19 @@ public class MainActivity extends AppCompatActivity {
     private Runnable timerUpdateThread = new Runnable() {
         @Override
         public void run() {
-            currentTime = endTime - SystemClock.uptimeMillis();
-
-            int seconds = (int) (currentTime/1000);
-            int minutes = seconds/60;
-            seconds = seconds%60; //so seconds are within range of 0 to 59s
+            currentTime.subtractCurrentTime();
 
             //update the timer
-            timer.setText(String.format("%02d", minutes) + ":"+ String.format("%02d", seconds));
-            nBuilder.setContentText(String.format("%02d", minutes) + ":"+ String.format("%02d", seconds));
+            timer.setText(currentTime.toString());
+            nBuilder.setContentText(currentTime.toString());
             if (break_time)
                 nBuilder.setContentTitle("Break #" + pomodoro_cycle);
             else
                 nBuilder.setContentTitle("Pomodoro #" + pomodoro_cycle);
             mNotificationManager.notify(notificationID, nBuilder.build());
-            Log.d("Time",Long.toString(currentTime));
-            Log.d("Time",Long.toString(endTime));
 
             //stop timer when it's almost over
-            if(currentTime <= 10) {
+            if(currentTime.getTime_in_ms() <= 10) {
                 stop_timer();
                 return;
             }
