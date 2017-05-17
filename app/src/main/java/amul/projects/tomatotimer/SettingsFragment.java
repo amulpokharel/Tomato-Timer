@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by amulpok on 5/15/17.
@@ -22,6 +24,8 @@ import butterknife.ButterKnife;
 public class SettingsFragment extends Fragment {
     @BindView(R.id.fullScreen) CheckBox fullscreen_checkbox;
     @BindView(R.id.darkMode) CheckBox darkMode_checkbox;
+    @BindView(R.id.pomodoroLength) TextView pomodoroLength;
+    @BindView(R.id.breakLength) TextView breakLength;
 
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
@@ -41,10 +45,13 @@ public class SettingsFragment extends Fragment {
 
         fullscreen_checkbox.setChecked(sharedPref.getBoolean("fullscreen", false));
         darkMode_checkbox.setChecked(sharedPref.getBoolean("darkmode", false));
+        pomodoroLength.setText(sharedPref.getString("pomodoro_length", "Enter Pomodoro Length (in minutes)"));
+        breakLength.setText(sharedPref.getString("break_length", "Enter Break Length (in minutes)"));
 
         return view;
     }
 
+    @OnClick({R.id.fullScreen, R.id.darkMode})
     public void onCheckboxClicked(View view) {
 
         // Is the view now checked?
@@ -73,6 +80,21 @@ public class SettingsFragment extends Fragment {
                     getActivity().finish();
                     getActivity().startActivity(new Intent(getActivity(), getActivity().getClass()));
                 }
+                break;
+        }
+
+        editor.commit();
+    }
+
+    @OnClick({R.id.submitBreak, R.id.submitPomodoro})
+    public void onButtonClicked(View view){
+        switch(view.getId()) {
+            case R.id.submitPomodoro:
+                breakLength.getText();
+
+                break;
+            case R.id.submitBreak:
+
                 break;
         }
 

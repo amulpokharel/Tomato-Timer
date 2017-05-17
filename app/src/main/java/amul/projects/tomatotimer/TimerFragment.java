@@ -3,6 +3,7 @@ package amul.projects.tomatotimer;
 import android.app.Fragment;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -33,6 +34,8 @@ public class TimerFragment extends Fragment {
     private static long BREAK_LENGTH = 3000L;
     private static long POMODORO_LENGTH = 3000L;
     private static Handler handler = new Handler();
+    long currentPomodoroLength;
+    long currentBreakLength;
     Time startTime;
     Time currentTime;
     Time endTime;
@@ -41,6 +44,8 @@ public class TimerFragment extends Fragment {
     int notificationID = 1;
     android.support.v4.app.NotificationCompat.Builder nBuilder;
     NotificationManager mNotificationManager;
+
+    SharedPreferences sharedPref;
 
 
     public static TimerFragment newInstance(){
@@ -58,14 +63,20 @@ public class TimerFragment extends Fragment {
     public void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        nBuilder = new android.support.v4.app.NotificationCompat.Builder(getActivity())
-                .setSmallIcon(R.drawable.ic_clock)
-                .setContentTitle("Pomodoro")
-                .setContentText(Time.FormatMS(POMODORO_LENGTH));
-
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         startTime = new Time(0L);
         currentTime = new Time(0L);
         endTime = new Time(0L);
+
+        currentPomodoroLength = sharedPref.getLong("pomodoro_length", POMODORO_LENGTH);
+        currentBreakLength = sharedPref.getLong("break_length", BREAK_LENGTH);
+
+        nBuilder = new android.support.v4.app.NotificationCompat.Builder(getActivity())
+                .setSmallIcon(R.drawable.ic_clock)
+                .setContentTitle("Pomodoro")
+                .setContentText(Time.FormatMS(currentPomodoroLength));
+
+
 
         mNotificationManager =
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -83,19 +94,19 @@ public class TimerFragment extends Fragment {
         currentTime.setToCurrent();
         endTime.setToCurrent();
         if(break_time)
-            endTime.setOffset(BREAK_LENGTH);
+            endTime.setOffset(currentPomodoroLength);
         else
-            endTime.setOffset(POMODORO_LENGTH);
+            endTime.setOffset(currentBreakLength);
 
 
         //set text for TextViews
         if(break_time){
             status.setText("Enjoy your break(#"+ pomodoro_cycle + ")!");
-            timer.setText(Time.FormatMS(BREAK_LENGTH));
+            timer.setText(Time.FormatMS(currentBreakLength));
         }
         else {
             status.setText("Pomodoro #" + pomodoro_cycle + " in Progress");
-            timer.setText(Time.FormatMS(POMODORO_LENGTH));
+            timer.setText(Time.FormatMS(currentPomodoroLength));
         }
 
 
