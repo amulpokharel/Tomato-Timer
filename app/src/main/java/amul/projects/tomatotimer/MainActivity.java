@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager fm = getFragmentManager();
     TimerFragment timerFrag = new TimerFragment();
     SettingsFragment settingFrag = new SettingsFragment();
+    static boolean just_launched = true;
 
 
     @Override
@@ -40,7 +41,10 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-        fm.beginTransaction().replace(R.id.mainFrame, timerFrag).commit();
+        if(just_launched) {
+            just_launched = false;
+            fm.beginTransaction().replace(R.id.mainFrame, timerFrag).commit();
+        }
 
         mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerOptions));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());

@@ -3,6 +3,7 @@ package amul.projects.tomatotimer;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,8 +23,8 @@ public class SettingsFragment extends Fragment {
     @BindView(R.id.fullScreen) CheckBox fullscreen_checkbox;
     @BindView(R.id.darkMode) CheckBox darkMode_checkbox;
 
-    SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-    SharedPreferences.Editor editor = sharedPref.edit();
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
 
     public static SettingsFragment newInstance(){
         return new SettingsFragment();
@@ -34,6 +35,9 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.setting_fragment, container, false);
         ButterKnife.bind(this, view);
+
+        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
 
         fullscreen_checkbox.setChecked(sharedPref.getBoolean("fullscreen", false));
         darkMode_checkbox.setChecked(sharedPref.getBoolean("darkmode", false));
@@ -59,9 +63,15 @@ public class SettingsFragment extends Fragment {
             case R.id.darkMode:
                 if (checked) {
                     editor.putBoolean("darkmode", true);
+                    getActivity().setTheme(R.style.DarkTheme);
+                    getActivity().finish();
+                    getActivity().startActivity(new Intent(getActivity(), getActivity().getClass()));
                 }
                 else {
                     editor.putBoolean("darkmode", false);
+                    getActivity().setTheme(R.style.AppTheme);
+                    getActivity().finish();
+                    getActivity().startActivity(new Intent(getActivity(), getActivity().getClass()));
                 }
                 break;
         }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,7 @@ public class TimerFragment extends Fragment {
     //Binds
     @BindView(R.id.timer) TextView timer;
     @BindView(R.id.statusText) TextView status;
-    @BindView(R.id.startBtn) Button startBtn;
+    @BindView(R.id.startFab) FloatingActionButton startBtn;
 
     //Timer variables
     private static long BREAK_LENGTH = 3000L;
@@ -72,10 +73,10 @@ public class TimerFragment extends Fragment {
     }
 
     //onclick method for start button. initializes + starts the timer
-    @OnClick(R.id.startBtn)
+    @OnClick(R.id.startFab)
     void start_timer(){
         //disable the button to avoid multiple threads
-        startBtn.setEnabled(false);
+        startBtn.hide();
 
         //set up times
         startTime.setToCurrent();
@@ -104,7 +105,7 @@ public class TimerFragment extends Fragment {
     }
 
     //onclick method for the stop button. ends the timer, updates messages accordingly
-    @OnClick(R.id.stopBtn)
+    @OnClick(R.id.stopFab)
     void stop_timer(){
 
         //remove thread from callback, so it stops running
@@ -121,7 +122,7 @@ public class TimerFragment extends Fragment {
                         mNotificationManager.notify(notificationID, nBuilder.build());
                         pomodoro_cycle = 1;
                         break_time = false;
-                        startBtn.setEnabled(true);
+                        startBtn.show();
                     }else {
                         break_time = true;
                         start_timer();
@@ -139,7 +140,7 @@ public class TimerFragment extends Fragment {
             mNotificationManager.cancel(notificationID);
             pomodoro_cycle = 1;
             break_time = false;
-            startBtn.setEnabled(true);
+            startBtn.show();
         }
 
     }
