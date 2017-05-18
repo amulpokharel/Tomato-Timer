@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +46,6 @@ public class SettingsFragment extends Fragment {
 
         fullscreen_checkbox.setChecked(sharedPref.getBoolean("fullscreen", false));
         darkMode_checkbox.setChecked(sharedPref.getBoolean("darkmode", false));
-        pomodoroLength.setText(sharedPref.getString("pomodoro_length", "Enter Pomodoro Length (in minutes)"));
-        breakLength.setText(sharedPref.getString("break_length", "Enter Break Length (in minutes)"));
 
         return view;
     }
@@ -90,10 +89,27 @@ public class SettingsFragment extends Fragment {
     public void onButtonClicked(View view){
         switch(view.getId()) {
             case R.id.submitPomodoro:
-                breakLength.getText();
+                if(pomodoroLength.getText()!= ""){
+                    double temp = Double.parseDouble(pomodoroLength.getText().toString());
+                    Log.d("before saving double", Double.toString(temp));
+                    long ms = (long)(temp*60*1000);
 
+                    Log.d("before saving long", Long.toString(ms));
+
+                    editor.putLong("pomodoro_length", ms);
+
+                }
                 break;
             case R.id.submitBreak:
+                if(breakLength.getText()!= "") {
+                    double temp = Double.parseDouble(breakLength.getText().toString());
+                    Log.d("before saving double", Double.toString(temp));
+                    long ms = (long)(temp*60*1000);
+                    Log.d("before saving long", Long.toString(ms));
+
+
+                    editor.putLong("break_length", ms);
+                }
 
                 break;
         }

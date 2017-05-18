@@ -34,6 +34,7 @@ public class TimerFragment extends Fragment {
     private static long BREAK_LENGTH = 3000L;
     private static long POMODORO_LENGTH = 3000L;
     private static Handler handler = new Handler();
+    private static boolean activeThread = false;
     long currentPomodoroLength;
     long currentBreakLength;
     Time startTime;
@@ -41,7 +42,7 @@ public class TimerFragment extends Fragment {
     Time endTime;
     int pomodoro_cycle = 1;
     boolean break_time = false;
-    int notificationID = 1;
+    int notificationID = 0;
     android.support.v4.app.NotificationCompat.Builder nBuilder;
     NotificationManager mNotificationManager;
 
@@ -63,24 +64,39 @@ public class TimerFragment extends Fragment {
     public void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        startTime = new Time(0L);
-        currentTime = new Time(0L);
-        endTime = new Time(0L);
+        if(!activeThread){
+            sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            startTime = new Time(0L);
+            currentTime = new Time(0L);
+            endTime = new Time(0L);
 
-        currentPomodoroLength = sharedPref.getLong("pomodoro_length", POMODORO_LENGTH);
-        currentBreakLength = sharedPref.getLong("break_length", BREAK_LENGTH);
+            currentPomodoroLength = sharedPref.getLong("pomodoro_length", POMODORO_LENGTH);
+            Log.d("pomodoro length", Long.toString(currentPomodoroLength));
+            currentBreakLength = sharedPref.getLong("break_length", BREAK_LENGTH);
+            Log.d("break length", Long.toString(currentBreakLength));
 
-        nBuilder = new android.support.v4.app.NotificationCompat.Builder(getActivity())
-                .setSmallIcon(R.drawable.ic_clock)
-                .setContentTitle("Pomodoro")
-                .setContentText(Time.FormatMS(currentPomodoroLength));
+            nBuilder = new android.support.v4.app.NotificationCompat.Builder(getActivity())
+                    .setSmallIcon(R.drawable.ic_clock)
+                    .setContentTitle("Pomodoro")
+                    .setContentText(Time.FormatMS(currentPomodoroLength));
+
+            mNotificationManager =
+                    (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);}
+        else{
+            
+        }
 
 
+    }
 
-        mNotificationManager =
-                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+    public void onDestroy(){
+        mNotificationManager.cancelAll();
+        super.onDestroy();
+    }
 
+    public void onStop(){
+        mNotificationManager.cancel(notificationID);
+        super.onStop();
     }
 
     //onclick method for start button. initializes + starts the timer
@@ -94,9 +110,9 @@ public class TimerFragment extends Fragment {
         currentTime.setToCurrent();
         endTime.setToCurrent();
         if(break_time)
-            endTime.setOffset(currentPomodoroLength);
-        else
             endTime.setOffset(currentBreakLength);
+        else
+            endTime.setOffset(currentPomodoroLength);
 
 
         //set text for TextViews
@@ -163,20 +179,24 @@ public class TimerFragment extends Fragment {
             currentTime.setTime(endTime.getTime_in_ms() - SystemClock.uptimeMillis());
 
             //update the timer
-            timer.setText(currentTime.toString());
-            nBuilder.setContentText(currentTime.toString());
-            if (break_time)
-                nBuilder.setContentTitle("Break #" + pomodoro_cycle);
-            else
-                nBuilder.setContentTitle("Pomodoro #" + pomodoro_cycle);
-            nBuilder.setOngoing(true);
-            mNotificationManager.notify(notificationID, nBuilder.build());
-            Log.d("Time",currentTime.toString());
-            Log.d("Time",endTime.toString());
+            if((currentTime.getTime_in_ms()%1000)<25) {
+                activeThread = true;
+                timer.setText(currentTime.toString());
+                nBuilder.setContentText(currentTime.toString());
+                if (break_time)
+                    nBuilder.setContentTitle("Break #" + pomodoro_cycle);
+                else
+                    nBuilder.setContentTitle("Pomodoro #" + pomodoro_cycle);
+                nBuilder.setOngoing(true);
+                mNotificationManager.notify(notificationID, nBuilder.build());
+                Log.d("Time", currentTime.toString());
+                Log.d("Time", endTime.toString());
+            }
 
             //stop timer when it's almost over
             if(currentTime.getTime_in_ms() <= 10) {
                 stop_timer();
+                activeThread = false;
                 return;
             }
 

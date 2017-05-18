@@ -22,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
     //drawer options/variables
     private String[] drawerOptions = {"Timer", "Settings"};
     FragmentManager fm = getFragmentManager();
-    TimerFragment timerFrag = new TimerFragment();
-    SettingsFragment settingFrag = new SettingsFragment();
     static boolean just_launched = true;
 
 
@@ -43,11 +41,15 @@ public class MainActivity extends AppCompatActivity {
 
         if(just_launched) {
             just_launched = false;
-            fm.beginTransaction().replace(R.id.mainFrame, timerFrag).commit();
+            fm.beginTransaction().replace(R.id.mainFrame, new TimerFragment()).commit();
         }
 
         mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerOptions));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+    }
+
+    public void onTaskRemoved(){
+
     }
 
 
@@ -64,12 +66,12 @@ public class MainActivity extends AppCompatActivity {
         // Insert the fragment by replacing any existing fragment
         if(position == 0) {
             fm.beginTransaction()
-                    .replace(R.id.mainFrame, timerFrag)
+                    .replace(R.id.mainFrame, new TimerFragment())
                     .commit();
         }
         else if(position == 1){
             fm.beginTransaction()
-                    .replace(R.id.mainFrame, settingFrag)
+                    .replace(R.id.mainFrame, new SettingsFragment())
                     .commit();
         }
 
